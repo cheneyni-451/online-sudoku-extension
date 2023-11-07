@@ -33,15 +33,39 @@ function trace(x) {
 }
 
 function identifyNumber(imageData) {
+  // 128 is magic number used to differentiate between dark and light
   const isDark = (chan) => chan < 128;
-  if (
-    // 128 is magic number used to differentiate between dark and light
-    getRGB(imageData, 800, 680).every(isDark)
-  ) {
+  if (getRGB(imageData, 800, 680).every(isDark)) {
     return 1;
   }
   if (getRGB(imageData, 700, 540).every(isDark)) {
     return 7;
+  }
+  if (getRGB(imageData, 700, 1430).every(isDark)) {
+    return 2;
+  }
+  if (
+    getRGB(imageData, 1310, 1190).every(isDark) &&
+    getRGB(imageData, 850, 1190).every(isDark)
+  ) {
+    return 4;
+  }
+  if (getRGB(imageData, 980, 1080).every(isDark)) {
+    return 9;
+  }
+  if (getRGB(imageData, 660, 1050).every(isDark)) {
+    return 6;
+  }
+  // order of conditions below matters
+  // these three must be checked last
+  if (getRGB(imageData, 770, 1040).every(isDark)) {
+    return 8;
+  }
+  if (getRGB(imageData, 700, 1000).every(isDark)) {
+    return 5;
+  }
+  if (getRGB(imageData, 880, 950).every(isDark)) {
+    return 3;
   }
   return 0;
 }
@@ -68,7 +92,7 @@ function drawCrosshair(ctx, x, y) {
   getPauseOverlay().style.display = "none";
 
   const CELL_SIZE = 219;
-  let numCount = 0;
+  const numberCounts = new Map();
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const ibm = await window.createImageBitmap(
@@ -90,12 +114,10 @@ function drawCrosshair(ctx, x, y) {
       ctx.drawImage(ibm, 0, 0);
       const newImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const cellValue = identifyNumber(newImage);
-      if (cellValue === 7) {
-        numCount++;
-      }
+      numberCounts.set(cellValue, (numberCounts.get(cellValue) ?? 0) + 1);
       // await sleep(1000);
     }
   }
-  console.debug(`# of 7s: ${numCount}`);
-  drawCrosshair(ctx, 700, 540);
+  console.debug(numberCounts);
+  drawCrosshair(ctx, 880, 950);
 })();
