@@ -1,12 +1,21 @@
 {
+  "name": "Sudoku Solver",
   "manifest_version": 2,
-  "name": "FirstExtension",
   "version": "1.0",
-  "description": "Does something",
+  "description": "Solves puzzles on sudoku.com",
   "content_scripts": [
     {
-      "matches": ["*://sudoku.com/*"],
-      "js": ["extension.js"]
+      "matches": [
+        "*://sudoku.com/",
+        "*://sudoku.com/easy/",
+        "*://sudoku.com/medium/",
+        "*://sudoku.com/hard/",
+        "*://sudoku.com/expert/",
+        "*://sudoku.com/evil/",
+        "*://sudoku.com/challenges/daily-sudoku"
+      ],
+      "js": ["main.js"],
+      "run_at": "document_idle"
     }
   ]
 }

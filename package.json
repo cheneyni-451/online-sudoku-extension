@@ -1,0 +1,16 @@
+{
+  "name": "sudoku-extension",
+  "version": "1.0.0",
+  "description": "Automated sudoku.com sudoku solver",
+  "private": "true",
+  "scripts": {
+    "dev": "webpack --mode=production --watch",
+    "build": "webpack --mode=production"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

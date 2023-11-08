@@ -1,3 +1,5 @@
+import { trace } from "./utils";
+
 async function sleep(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
@@ -27,10 +29,10 @@ function getRGB(image, x, y) {
   return getPixel(image, x, y).slice(0, 3);
 }
 
-function trace(x) {
-  console.debug(x);
-  return x;
-}
+// function trace(x) {
+//   console.debug(x);
+//   return x;
+// }
 
 function identifyNumber(imageData) {
   // 128 is magic number used to differentiate between dark and light
@@ -177,17 +179,6 @@ function solveHelper(index, cells, emptyCells) {
   }
 }
 
-function printGrid(cells) {
-  console.debug(
-    cells.reduce((prev, cur, curIdx) => {
-      if (curIdx !== 0 && curIdx % 9 === 0) {
-        return `${prev}\n${cur.value === 0 ? " " : cur}`;
-      }
-      return `${prev} ${cur.value === 0 ? " " : cur}`;
-    })
-  );
-}
-
 const Directions = Object.freeze({
   UP: Symbol("UP"),
   DOWN: Symbol("DOWN"),
@@ -250,7 +241,7 @@ async function submitSolution(solution) {
 }
 
 (async () => {
-  await sleep(1000);
+  await sleep(500);
   const canvas = getCanvas();
   const ctx = canvas.getContext("2d");
 
@@ -290,7 +281,7 @@ async function submitSolution(solution) {
       numberCounts.set(cellValue, (numberCounts.get(cellValue) ?? 0) + 1);
     }
   }
-  const emptyCells = solve(cells);
+  const emptyCells = trace(solve(cells));
 
   console.debug(numberCounts);
   console.debug(emptyCells);
