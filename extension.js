@@ -79,6 +79,176 @@ function drawCrosshair(ctx, x, y) {
   ctx.stroke();
 }
 
+class Cell {
+  constructor(row, col, value) {
+    this.row = row;
+    this.col = col;
+    this.value = value;
+  }
+
+  toString() {
+    return `${this.value}`;
+  }
+}
+
+/**
+ *
+ * @param {Cell[]} cells
+ * @param {Cell} cell
+ * @returns {boolean}
+ */
+function isValidPlacement(cells, cell) {
+  const { row, col } = cell;
+  if (cell.value === 0) {
+    return false;
+  }
+
+  let bitSet = new Uint8Array(9);
+
+  // check row
+  for (const curCell of cells.slice(row * 9, (row + 1) * 9)) {
+    if (curCell.value === 0) {
+      continue;
+    }
+
+    if (++bitSet[curCell.value - 1] > 1) {
+      return false;
+    }
+  }
+
+  bitSet = new Uint8Array(9);
+  // check col
+  for (let r = 0; r < 9; r++) {
+    const curIndex = r * 9 + col;
+    const curCell = cells[curIndex];
+    if (curCell.value === 0) {
+      continue;
+    }
+
+    if (++bitSet[curCell.value - 1] > 1) {
+      return false;
+    }
+  }
+
+  bitSet = new Uint8Array(9);
+  // check box
+  const boxStartRow = row - (row % 3);
+  const boxStartCol = col - (col % 3);
+  for (let r = boxStartRow; r < boxStartRow + 3; r++) {
+    for (let c = boxStartCol; c < boxStartCol + 3; c++) {
+      const curCell = cells[r * 9 + c];
+      if (curCell.value === 0) {
+        continue;
+      }
+
+      if (++bitSet[curCell.value - 1] > 1) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function solve(cells) {
+  const emptyCells = cells.filter((cell) => cell.value === 0);
+  if (emptyCells.length > 0) {
+    solveHelper(0, cells, emptyCells);
+  }
+  return emptyCells;
+}
+
+function solveHelper(index, cells, emptyCells) {
+  const lastCell = emptyCells[emptyCells.length - 1];
+  if (!isValidPlacement(cells, lastCell)) {
+    for (let i = 1; i <= 9; i++) {
+      const curCell = emptyCells[index];
+      curCell.value = i;
+
+      if (isValidPlacement(cells, curCell)) {
+        solveHelper(index + 1, cells, emptyCells);
+
+        const lastCell = emptyCells[emptyCells.length - 1];
+        if (isValidPlacement(cells, lastCell)) {
+          break;
+        }
+      }
+      curCell.value = 0;
+    }
+  }
+}
+
+function printGrid(cells) {
+  console.debug(
+    cells.reduce((prev, cur, curIdx) => {
+      if (curIdx !== 0 && curIdx % 9 === 0) {
+        return `${prev}\n${cur.value === 0 ? " " : cur}`;
+      }
+      return `${prev} ${cur.value === 0 ? " " : cur}`;
+    })
+  );
+}
+
+const Directions = Object.freeze({
+  UP: Symbol("UP"),
+  DOWN: Symbol("DOWN"),
+  LEFT: Symbol("LEFT"),
+  RIGHT: Symbol("RIGHT"),
+});
+
+function keydown(keyCode) {
+  window.dispatchEvent(new KeyboardEvent("keydown", { keyCode }));
+}
+
+function move(direction) {
+  switch (direction) {
+    case Directions.UP:
+      keydown(38);
+      break;
+    case Directions.DOWN:
+      keydown(40);
+      break;
+    case Directions.LEFT:
+      keydown(37);
+      break;
+    case Directions.RIGHT:
+      keydown(39);
+      break;
+    default:
+      throw new Error("error");
+  }
+}
+
+function inputDigit(digit) {
+  if (1 <= digit && digit <= 9) {
+    keydown(digit + 48);
+  }
+}
+
+async function submitSolution(solution) {
+  let curRow = 0;
+  let curCol = 0;
+  for (const cell of solution) {
+    const { row, col, value } = cell;
+    while (curRow < row) {
+      move(Directions.DOWN);
+      curRow++;
+    }
+    while (curRow > row) {
+      move(Directions.UP);
+      curRow--;
+    }
+    while (curCol < col) {
+      move(Directions.RIGHT);
+      curCol++;
+    }
+    while (curCol > col) {
+      move(Directions.LEFT);
+      curCol--;
+    }
+    inputDigit(value);
+  }
+}
+
 (async () => {
   await sleep(1000);
   const canvas = getCanvas();
@@ -93,6 +263,8 @@ function drawCrosshair(ctx, x, y) {
 
   const CELL_SIZE = 219;
   const numberCounts = new Map();
+  const cells = new Array(81);
+
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const ibm = await window.createImageBitmap(
@@ -114,10 +286,15 @@ function drawCrosshair(ctx, x, y) {
       ctx.drawImage(ibm, 0, 0);
       const newImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const cellValue = identifyNumber(newImage);
+      cells[row * 9 + col] = new Cell(row, col, cellValue);
       numberCounts.set(cellValue, (numberCounts.get(cellValue) ?? 0) + 1);
-      // await sleep(1000);
     }
   }
+  const emptyCells = solve(cells);
+
   console.debug(numberCounts);
-  drawCrosshair(ctx, 880, 950);
+  console.debug(emptyCells);
+
+  move(Directions.LEFT); // refocus on board
+  await submitSolution(emptyCells);
 })();
