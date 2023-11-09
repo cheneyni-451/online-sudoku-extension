@@ -1,85 +1,11 @@
-import { trace } from "./utils";
-
-async function sleep(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
-
-function getCanvas() {
-  return document.getElementById("game").firstChild;
-}
-
-function getPlayPauseButton() {
-  return document.getElementById("timer-wrapper");
-}
-
-function getPauseOverlay() {
-  return document.getElementById("pause-overlay");
-}
-
-function getIndex(imageWidth, x, y) {
-  return (y * imageWidth + x) * 4;
-}
-
-function getPixel(image, x, y) {
-  const index = getIndex(image.width, x, y);
-  return image.data.subarray(index, index + 4);
-}
-
-function getRGB(image, x, y) {
-  return getPixel(image, x, y).slice(0, 3);
-}
-
-// function trace(x) {
-//   console.debug(x);
-//   return x;
-// }
-
-function identifyNumber(imageData) {
-  // 128 is magic number used to differentiate between dark and light
-  const isDark = (chan) => chan < 128;
-  if (getRGB(imageData, 800, 680).every(isDark)) {
-    return 1;
-  }
-  if (getRGB(imageData, 700, 540).every(isDark)) {
-    return 7;
-  }
-  if (getRGB(imageData, 700, 1430).every(isDark)) {
-    return 2;
-  }
-  if (
-    getRGB(imageData, 1310, 1190).every(isDark) &&
-    getRGB(imageData, 850, 1190).every(isDark)
-  ) {
-    return 4;
-  }
-  if (getRGB(imageData, 980, 1080).every(isDark)) {
-    return 9;
-  }
-  if (getRGB(imageData, 660, 1050).every(isDark)) {
-    return 6;
-  }
-  // order of conditions below matters
-  // these three must be checked last
-  if (getRGB(imageData, 770, 1040).every(isDark)) {
-    return 8;
-  }
-  if (getRGB(imageData, 700, 1000).every(isDark)) {
-    return 5;
-  }
-  if (getRGB(imageData, 880, 950).every(isDark)) {
-    return 3;
-  }
-  return 0;
-}
-
-function drawCrosshair(ctx, x, y) {
-  ctx.beginPath();
-  ctx.moveTo(0, y);
-  ctx.lineTo(ctx.canvas.width, y);
-  ctx.moveTo(x, 0);
-  ctx.lineTo(x, ctx.canvas.height);
-  ctx.stroke();
-}
+import { Directions, move, inputDigit } from "./keyboardEvent";
+import {
+  getCanvas,
+  getPlayPauseButton,
+  getPauseOverlay,
+  identifyNumber,
+} from "./canvas";
+import { sleep } from "./utils";
 
 class Cell {
   constructor(row, col, value) {
@@ -179,42 +105,6 @@ function solveHelper(index, cells, emptyCells) {
   }
 }
 
-const Directions = Object.freeze({
-  UP: Symbol("UP"),
-  DOWN: Symbol("DOWN"),
-  LEFT: Symbol("LEFT"),
-  RIGHT: Symbol("RIGHT"),
-});
-
-function keydown(keyCode) {
-  window.dispatchEvent(new KeyboardEvent("keydown", { keyCode }));
-}
-
-function move(direction) {
-  switch (direction) {
-    case Directions.UP:
-      keydown(38);
-      break;
-    case Directions.DOWN:
-      keydown(40);
-      break;
-    case Directions.LEFT:
-      keydown(37);
-      break;
-    case Directions.RIGHT:
-      keydown(39);
-      break;
-    default:
-      throw new Error("error");
-  }
-}
-
-function inputDigit(digit) {
-  if (1 <= digit && digit <= 9) {
-    keydown(digit + 48);
-  }
-}
-
 async function submitSolution(solution) {
   let curRow = 0;
   let curCol = 0;
@@ -281,7 +171,7 @@ async function submitSolution(solution) {
       numberCounts.set(cellValue, (numberCounts.get(cellValue) ?? 0) + 1);
     }
   }
-  const emptyCells = trace(solve(cells));
+  const emptyCells = solve(cells);
 
   console.debug(numberCounts);
   console.debug(emptyCells);
