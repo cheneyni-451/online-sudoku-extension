@@ -14,7 +14,8 @@
         "*://sudoku.com/evil/",
         "*://sudoku.com/challenges/daily-sudoku",
         "*://sudoku9x9.com/*",
-        "*://www.livesudoku.com/*/sudoku/*"
+        "*://www.livesudoku.com/*/sudoku/*",
+        "*://www.livesudoku.com/*/livesudoku.php"
       ],
       "js": ["main.js"],
       "run_at": "document_idle"

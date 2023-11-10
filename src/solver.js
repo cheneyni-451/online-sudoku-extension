@@ -1,6 +1,11 @@
 export class Solver {
-  solvePuzzle(cell) {
-    return solve(cell);
+  solvePuzzle(cell, callback) {
+    const solution = solve(cell);
+    if (callback) {
+      callback(solution);
+    } else {
+      return solution;
+    }
   }
 }
 

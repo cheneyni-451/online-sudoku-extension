@@ -8,8 +8,9 @@ import { getHandler } from "./handlers/handler";
   if (handler === undefined) {
     throw new Error("invalid");
   }
-  const cells = await handler.parsePuzzle();
-  console.debug(cells);
-  const solution = handler.solvePuzzle(cells);
-  await handler.submitSolution(solution);
+
+  await sleep(1000 * 60);
+  await handler.parsePuzzle((cells) =>
+    handler.solvePuzzle(cells, handler.submitSolution)
+  );
 })();

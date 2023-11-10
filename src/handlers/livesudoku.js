@@ -1,4 +1,5 @@
 import { Cell, Solver } from "../solver";
+import { sleep } from "../utils";
 
 function selectCell(row, col) {
   document
@@ -13,19 +14,42 @@ function inputValue(value) {
 }
 
 export class HandleLiveSudoku extends Solver {
-  async parsePuzzle() {
-    const cells = Array(81);
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        const index = row * 9 + col;
-        const valueStr = document.getElementById(`td${index}`).innerText;
-        const value = parseInt(valueStr);
+  async parsePuzzle(callback = this.solvePuzzle) {
+    const parse = () => {
+      const cells = Array(81);
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          const index = row * 9 + col;
+          const valueStr = document.getElementById(`td${index}`).innerText;
+          const value = parseInt(valueStr);
 
-        cells[index] = new Cell(row, col, isNaN(value) ? 0 : value);
+          cells[index] = new Cell(row, col, isNaN(value) ? 0 : value);
+        }
       }
-    }
 
-    return cells;
+      const startButton = document.getElementById("myStartButton");
+      if (startButton !== null) {
+        startButton.remove();
+      }
+
+      if (callback) {
+        callback(cells);
+      } else {
+        return cells;
+      }
+    };
+
+    if (window.location.pathname.includes("livesudoku.php")) {
+      const startButton = document.createElement("button");
+      startButton.innerText = "Start";
+      startButton.style.position = "sticky";
+      startButton.style.bottom = "0";
+      startButton.id = "myStartButton";
+      startButton.onclick = parse;
+      document.body.appendChild(startButton);
+    } else {
+      return parse();
+    }
   }
 
   async submitSolution(solution) {
