@@ -1,3 +1,4 @@
+import { HandleLiveSudoku } from "./livesudoku";
 import { HandleSudoku } from "./sudoku";
 import { HandleSudoku9x9 } from "./sudoku9x9";
 
@@ -12,6 +13,8 @@ export function getHandler(location) {
       return new HandleSudoku();
     case "sudoku9x9.com":
       return new HandleSudoku9x9();
+    case "www.livesudoku.com":
+      return new HandleLiveSudoku();
     default:
       return undefined;
   }

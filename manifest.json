@@ -13,7 +13,8 @@
         "*://sudoku.com/expert/",
         "*://sudoku.com/evil/",
         "*://sudoku.com/challenges/daily-sudoku",
-        "*://sudoku9x9.com/*"
+        "*://sudoku9x9.com/*",
+        "*://www.livesudoku.com/*/sudoku/*"
       ],
       "js": ["main.js"],
       "run_at": "document_idle"
