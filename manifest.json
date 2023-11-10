@@ -12,7 +12,8 @@
         "*://sudoku.com/hard/",
         "*://sudoku.com/expert/",
         "*://sudoku.com/evil/",
-        "*://sudoku.com/challenges/daily-sudoku"
+        "*://sudoku.com/challenges/daily-sudoku",
+        "*://sudoku9x9.com/*"
       ],
       "js": ["main.js"],
       "run_at": "document_idle"

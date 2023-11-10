@@ -9,6 +9,7 @@ import { getHandler } from "./handlers/handler";
     throw new Error("invalid");
   }
   const cells = await handler.parsePuzzle();
+  console.debug(cells);
   const solution = handler.solvePuzzle(cells);
   await handler.submitSolution(solution);
 })();
