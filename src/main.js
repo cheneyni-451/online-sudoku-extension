@@ -9,7 +9,7 @@ import { getHandler } from "./handlers/handler";
     throw new Error("invalid");
   }
 
-  await sleep(1000 * 60);
+  await handler.execPre();
   await handler.parsePuzzle((cells) =>
     handler.solvePuzzle(cells, handler.submitSolution)
   );

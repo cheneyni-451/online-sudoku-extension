@@ -14,7 +14,7 @@ function dailyChallengeValueShift(value, index) {
 }
 
 export class HandleSudoku9x9 extends Solver {
-  async parsePuzzle() {
+  async parsePuzzle(callback) {
     const isDailyChallenge = window.location.pathname === "/dailychallenge.php";
 
     const cells = Array(81);
@@ -36,31 +36,43 @@ export class HandleSudoku9x9 extends Solver {
       }
     }
 
-    return cells;
+    if (callback) {
+      callback(cells);
+    } else {
+      return cells;
+    }
   }
 
   async submitSolution(solution) {
     // Daily challenge has start button to hide puzzle
+    let delayBetweenInputs = 0;
     const startButton = getStartButton();
     if (startButton !== null) {
       startButton.click();
-    }
 
-    for (const cell of solution) {
-      const { row, col, value } = cell;
-      document.getElementById(`c${row * 9 + col}`).value = value;
-    }
-
-    // get second place
-    if (startButton !== null) {
+      // get second place
       const firstPlaceTD = document.getElementsByTagName("td")[4];
       let [minutes, seconds] = [4, 0];
       if (firstPlaceTD !== undefined) {
         const firstPlaceTime = firstPlaceTD.textContent;
         [minutes, seconds] = firstPlaceTime.split(":").map((s) => parseInt(s));
       }
-      await sleep(1000 * (60 * minutes + seconds + 1));
+      delayBetweenInputs = Math.floor(
+        (1000 * (60 * minutes + seconds)) / solution.length
+      );
     }
+
+    for (const cell of solution) {
+      const { row, col, value } = cell;
+      document.getElementById(`c${row * 9 + col}`).value = value;
+      if (delayBetweenInputs > 0) {
+        await sleep(delayBetweenInputs);
+      }
+    }
+    if (delayBetweenInputs > 0) {
+      await sleep(1000);
+    }
+
     getCheckButton().click();
   }
 }

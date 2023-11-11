@@ -1,4 +1,6 @@
 export class Solver {
+  async execPre() {}
+
   solvePuzzle(cell, callback) {
     const solution = solve(cell);
     if (callback) {

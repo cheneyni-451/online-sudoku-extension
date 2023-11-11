@@ -3,7 +3,7 @@ import { Directions, move, inputDigit } from "../keyboardEvent";
 import { getRGB } from "../canvas";
 
 export class HandleSudoku extends Solver {
-  async parsePuzzle() {
+  async parsePuzzle(callback) {
     const canvas = getCanvas();
     const ctx = canvas.getContext("2d");
 
@@ -44,7 +44,11 @@ export class HandleSudoku extends Solver {
       }
     }
 
-    return cells;
+    if (callback) {
+      callback(cells);
+    } else {
+      return cells;
+    }
   }
 
   async submitSolution(solution) {
