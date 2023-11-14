@@ -16,7 +16,7 @@ function inputValue(value) {
 export class HandleLiveSudoku extends Solver {
   async execPre() {
     if (window.location.pathname.includes("sudoku-solved")) {
-      window.location.href = "https://www.livesudoku.com/en/sudoku/evil/";
+      window.location.href = document.referrer;
     }
   }
 
